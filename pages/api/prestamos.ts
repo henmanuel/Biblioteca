@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             const prestamos = await prisma.prestamo.findMany({
                 where: {
-                    fechaDevolucion: null,  // Solo obtener préstamos activos (no devueltos)
+                    fechaDevolucion: null,
                 },
                 include: {
                     libro: true,
@@ -43,9 +43,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return res.status(400).json({ error: 'No hay ejemplares disponibles para este libro.' });
             }
 
-            await prisma.libro.update({
-                where: { id: libroId },
-                data: { ejemplares: libro.ejemplares - 1 },
+            const reservaPendiente = await prisma.reserva.findFirst({
+                where: {
+                    libroId: libroId,
+                    usuarioId: usuarioId,
+                    estado: 'pendiente',
+                },
             });
 
             const nuevoPrestamo = await prisma.prestamo.create({
@@ -60,6 +63,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     usuario: true,
                 },
             });
+
+            if (reservaPendiente) {
+                await prisma.reserva.update({
+                    where: { id: reservaPendiente.id },
+                    data: { estado: 'completado' },
+                });
+            }
+
+            await prisma.libro.update({
+                where: { id: libroId },
+                data: { ejemplares: libro.ejemplares - 1 },
+            });
+
             res.status(201).json(nuevoPrestamo);
         } catch (error) {
             res.status(500).json({ error: 'Error al registrar el préstamo' });
