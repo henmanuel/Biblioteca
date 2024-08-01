@@ -43,8 +43,9 @@ model Prestamo {
   id              Int        @id @default(autoincrement())
   libroId         Int
   usuarioId       Int
-  fecha           DateTime   @default(now())
+  fecha           DateTime   @default(now())  // Fecha del préstamo
   fechaVencimiento DateTime
+  fechaDevolucion DateTime?
   multa           Float?     @default(0.0)
   libro           Libro      @relation(fields: [libroId], references: [id])
   usuario         Usuario    @relation(fields: [usuarioId], references: [id])

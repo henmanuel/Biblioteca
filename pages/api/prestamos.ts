@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
+import { addDays, differenceInDays } from 'date-fns';
 
 const prisma = new PrismaClient();
 
@@ -12,23 +13,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     usuario: true,
                 },
             });
-            res.status(200).json(prestamos);
+
+            const prestamosConCalculos = prestamos.map(prestamo => {
+                const fechaActual = new Date();
+                const diasRestantes = differenceInDays(prestamo.fechaVencimiento, fechaActual);
+                const multa = diasRestantes < 0 ? Math.abs(diasRestantes) * 1 : 0;
+
+                return {
+                    ...prestamo,
+                    diasRestantes,
+                    multa,
+                };
+            });
+
+            res.status(200).json(prestamosConCalculos);
         } catch (error) {
             res.status(500).json({ error: 'Error al obtener los préstamos' });
         }
     } else if (req.method === 'POST') {
         const { libroId, usuarioId } = req.body;
 
-        const diasPrestamo = 14; // Número de días de préstamo
-        const fechaVencimiento = new Date();
-        fechaVencimiento.setDate(fechaVencimiento.getDate() + diasPrestamo);
-
         try {
             const nuevoPrestamo = await prisma.prestamo.create({
                 data: {
                     libroId,
                     usuarioId,
-                    fechaVencimiento,
+                    fecha: new Date(),
+                    fechaVencimiento: addDays(new Date(), 7),
                 },
                 include: {
                     libro: true,
@@ -39,48 +50,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         } catch (error) {
             res.status(500).json({ error: 'Error al registrar el préstamo' });
         }
-    } else if (req.method === 'DELETE') {
-        const { id } = req.query;
-
-        if (!id) {
-            return res.status(400).json({ error: 'ID del préstamo es obligatorio' });
-        }
+    } else if (req.method === 'PUT') {
+        const { id, fechaDevolucion } = req.body;
 
         try {
-            const prestamo = await prisma.prestamo.findUnique({
-                where: { id: Number(id) },
-            });
-
-            if (!prestamo) {
-                return res.status(404).json({ error: 'Préstamo no encontrado' });
-            }
-
-            const hoy = new Date();
-            let multa = 0.0;
-
-            if (hoy > prestamo.fechaVencimiento) {
-                const diasRetraso = Math.ceil((hoy.getTime() - prestamo.fechaVencimiento.getTime()) / (1000 * 60 * 60 * 24));
-                multa = diasRetraso * 1.0; // Por ejemplo, $1 por día de retraso
-            }
-
-            await prisma.prestamo.update({
+            const prestamo = await prisma.prestamo.update({
                 where: { id: Number(id) },
                 data: {
-                    multa,
+                    fechaDevolucion,
+                    multa: differenceInDays(new Date(fechaDevolucion), new Date()) * 1,
+                },
+                include: {
+                    libro: true,
+                    usuario: true,
                 },
             });
-
-            await prisma.prestamo.delete({
-                where: { id: Number(id) },
-            });
-
-            res.status(204).end();
+            res.status(200).json(prestamo);
         } catch (error) {
-            console.error('Error al devolver el libro:', error);
-            res.status(500).json({ error: 'Error al devolver el libro' });
+            res.status(500).json({ error: 'Error al registrar la devolución' });
         }
     } else {
-        res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
+        res.setHeader('Allow', ['GET', 'POST', 'PUT']);
         res.status(405).end(`Método ${req.method} no permitido`);
     }
 }
