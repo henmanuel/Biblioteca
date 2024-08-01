@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { addDays, differenceInDays } from 'date-fns';
 import { NextApiRequest, NextApiResponse } from 'next';
-import {notificarDisponibilidad} from "@/pages/lib/notificaciones";
 
 const prisma = new PrismaClient();
 
@@ -85,8 +84,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 where: { id: prestamo.libroId },
                 data: { ejemplares: { increment: 1 } },
             });
-
-            await notificarDisponibilidad(prestamo.libroId);
 
             res.status(200).json(prestamo);
         } catch (error) {
