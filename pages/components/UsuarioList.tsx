@@ -6,6 +6,8 @@ export default function UsuarioList() {
     const [usuarios, setUsuarios] = useState([]);
     const [form, setForm] = useState({ id: '', nombre: '', email: '', rol: 'usuario' });
     const [editMode, setEditMode] = useState(false);
+    const [historial, setHistorial] = useState([]);
+    const [showHistorial, setShowHistorial] = useState(false);
 
     useEffect(() => {
         fetchUsuarios();
@@ -15,6 +17,13 @@ export default function UsuarioList() {
         const res = await fetch('/api/usuarios');
         const data = await res.json();
         setUsuarios(data);
+    };
+
+    const fetchHistorial = async (usuarioId) => {
+        const res = await fetch(`/api/historial?usuarioId=${usuarioId}`);
+        const data = await res.json();
+        setHistorial(data);
+        setShowHistorial(true);
     };
 
     const handleSubmit = async (e) => {
@@ -69,6 +78,7 @@ export default function UsuarioList() {
                         {usuario.nombre} - {usuario.email}
                         <button onClick={() => handleEdit(usuario)} className="ml-2 text-blue-300 hover:text-blue-500">Editar</button>
                         <button onClick={() => handleDelete(usuario.id)} className="ml-2 text-red-300 hover:text-red-500">Eliminar</button>
+                        <button onClick={() => fetchHistorial(usuario.id)} className="ml-2 text-green-300 hover:text-green-500">Ver Historial</button>
                     </li>
                 ))}
             </ul>
@@ -109,6 +119,20 @@ export default function UsuarioList() {
                     )}
                 </div>
             </form>
+
+            {showHistorial && (
+                <div className="mt-8">
+                    <h2 className="text-xl font-semibold mb-4">Historial de Préstamos y Devoluciones</h2>
+                    <ul>
+                        {historial.map((item, index) => (
+                            <li key={index} className="mb-2">
+                                {item.libro.titulo} - Prestado el {new Date(item.fecha).toLocaleDateString()} {item.fechaDevolucion && `y devuelto el ${new Date(item.fechaDevolucion).toLocaleDateString()}`}
+                            </li>
+                        ))}
+                    </ul>
+                    <button onClick={() => setShowHistorial(false)} className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Cerrar Historial</button>
+                </div>
+            )}
         </div>
     );
 }
