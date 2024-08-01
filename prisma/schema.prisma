@@ -15,28 +15,46 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  email     String   @unique
+  rol       String   @default("usuario")
+  prestamos Prestamo[]
+  reservas  Reserva[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Libro {
-  id        Int        @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   titulo    String
   autor     String
   genero    String
-  isbn      String     @unique
-  ejemplares Int
-  prestamos Prestamo[] // Esta línea crea la relación recíproca con Prestamo
-}
-
-model Usuario {
-  id        Int        @id @default(autoincrement())
-  nombre    String
-  rol       String
-  prestamos Prestamo[]
+  isbn      String   @unique
+  ejemplares Int     @default(1)
+  prestamos  Prestamo[]
+  reservas   Reserva[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Prestamo {
-  id        Int        @id @default(autoincrement())
-  libroId   Int
-  usuarioId Int
-  fecha     DateTime   @default(now())
-  libro     Libro      @relation(fields: [libroId], references: [id])
-  usuario   Usuario    @relation(fields: [usuarioId], references: [id])
+  id              Int        @id @default(autoincrement())
+  libroId         Int
+  usuarioId       Int
+  fecha           DateTime   @default(now())
+  fechaVencimiento DateTime
+  multa           Float?     @default(0.0)
+  libro           Libro      @relation(fields: [libroId], references: [id])
+  usuario         Usuario    @relation(fields: [usuarioId], references: [id])
+}
+
+model Reserva {
+  id          Int      @id @default(autoincrement())
+  usuarioId   Int
+  libroId     Int
+  fecha       DateTime @default(now())
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
+  libro       Libro    @relation(fields: [libroId], references: [id])
 }
