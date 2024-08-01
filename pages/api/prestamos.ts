@@ -8,6 +8,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'GET') {
         try {
             const prestamos = await prisma.prestamo.findMany({
+                where: {
+                    fechaDevolucion: null,  // Solo obtener préstamos activos (no devueltos)
+                },
                 include: {
                     libro: true,
                     usuario: true,
