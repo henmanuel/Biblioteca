@@ -5,11 +5,14 @@ import Select from 'react-select';
 
 export default function ReservaList() {
     const [libros, setLibros] = useState([]);
+    const [usuarios, setUsuarios] = useState([]);
     const [selectedLibro, setSelectedLibro] = useState(null);
+    const [selectedUsuario, setSelectedUsuario] = useState(null);
     const [mensaje, setMensaje] = useState('');
 
     useEffect(() => {
         fetchLibros();
+        fetchUsuarios();
     }, []);
 
     const fetchLibros = async () => {
@@ -22,9 +25,19 @@ export default function ReservaList() {
         }
     };
 
+    const fetchUsuarios = async () => {
+        try {
+            const res = await fetch('/api/usuarios');
+            const data = await res.json();
+            setUsuarios(data);
+        } catch (error) {
+            console.error('Error al obtener los usuarios:', error);
+        }
+    };
+
     const handleReserva = async () => {
-        if (!selectedLibro) {
-            setMensaje('Por favor selecciona un libro.');
+        if (!selectedLibro || !selectedUsuario) {
+            setMensaje('Por favor selecciona un libro y un usuario.');
             return;
         }
 
@@ -36,7 +49,7 @@ export default function ReservaList() {
                 },
                 body: JSON.stringify({
                     libroId: selectedLibro.value,
-                    usuarioId: 1, // Debes cambiar esto por el ID del usuario autenticado
+                    usuarioId: selectedUsuario.value, // Asegúrate de que estos valores no sean undefined
                 }),
             });
 
@@ -52,24 +65,6 @@ export default function ReservaList() {
         }
     };
 
-    const customStyles = {
-        control: (provided) => ({
-            ...provided,
-            backgroundColor: '#1e293b',
-            borderColor: '#475569',
-            color: '#ffffff',
-        }),
-        singleValue: (provided) => ({
-            ...provided,
-            color: '#ffffff',
-        }),
-        option: (provided, state) => ({
-            ...provided,
-            backgroundColor: state.isSelected ? '#1e40af' : '#1e293b',
-            color: '#ffffff',
-        }),
-    };
-
     return (
         <div className="p-4 text-white">
             <h1 className="text-2xl font-bold mb-4">Reservar un Libro</h1>
@@ -78,8 +73,13 @@ export default function ReservaList() {
                 onChange={setSelectedLibro}
                 options={libros.map(libro => ({ value: libro.id, label: `${libro.titulo} (${libro.ejemplares} ejemplares disponibles)` }))}
                 placeholder="Seleccionar Libro"
-                styles={customStyles}
-                isSearchable
+            />
+            <Select
+                value={selectedUsuario}
+                onChange={setSelectedUsuario}
+                options={usuarios.map(usuario => ({ value: usuario.id, label: usuario.nombre }))}
+                placeholder="Seleccionar Usuario"
+                className="mt-4"
             />
             <button onClick={handleReserva} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
                 Reservar Libro

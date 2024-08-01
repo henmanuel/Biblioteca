@@ -7,6 +7,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'POST') {
         const { libroId, usuarioId } = req.body;
 
+        if (!libroId || !usuarioId) {
+            return res.status(400).json({ error: 'libroId y usuarioId son requeridos' });
+        }
+
         try {
             const reservaExistente = await prisma.reserva.findFirst({
                 where: {
@@ -24,6 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 data: {
                     libroId,
                     usuarioId,
+                    estado: "pendiente",
                 }
             });
 
