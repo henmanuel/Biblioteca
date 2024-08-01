@@ -6,8 +6,27 @@ const prisma = new PrismaClient();
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'GET') {
         try {
-            const libros = await prisma.libro.findMany();
-            res.status(200).json(libros);
+            const libros = await prisma.libro.findMany({
+                include: {
+                    prestamos: {
+                        where: {
+                            fechaDevolucion: null,
+                        },
+                    },
+                },
+            });
+
+            const librosConDisponibilidad = libros.map(libro => {
+                const prestamosActivos = libro.prestamos.length;
+                const disponibles = libro.ejemplares - prestamosActivos;
+                return {
+                    ...libro,
+                    prestados: prestamosActivos,
+                    disponibles: disponibles < 0 ? 0 : disponibles,
+                };
+            });
+
+            res.status(200).json(librosConDisponibilidad);
         } catch (error) {
             res.status(500).json({ error: 'Error al obtener los libros' });
         }
