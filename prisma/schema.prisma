@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Libro {
+  id        Int        @id @default(autoincrement())
+  titulo    String
+  autor     String
+  genero    String
+  isbn      String     @unique
+  ejemplares Int
+  prestamos Prestamo[] // Esta línea crea la relación recíproca con Prestamo
+}
+
+model Usuario {
+  id        Int        @id @default(autoincrement())
+  nombre    String
+  rol       String
+  prestamos Prestamo[]
+}
+
+model Prestamo {
+  id        Int        @id @default(autoincrement())
+  libroId   Int
+  usuarioId Int
+  fecha     DateTime   @default(now())
+  libro     Libro      @relation(fields: [libroId], references: [id])
+  usuario   Usuario    @relation(fields: [usuarioId], references: [id])
+}
