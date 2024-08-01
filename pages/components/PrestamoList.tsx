@@ -72,7 +72,7 @@ export default function PrestamoList() {
     const handleDevolucion = async (prestamoId) => {
         const confirmDevolucion = confirm("¿Estás seguro de que deseas devolver este libro?");
         if (confirmDevolucion) {
-            await fetch(`/api/prestamos`, {
+            const response = await fetch(`/api/prestamos`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,7 +80,11 @@ export default function PrestamoList() {
                 body: JSON.stringify({ id: prestamoId, fechaDevolucion: new Date() }),
             });
 
-            await fetchPrestamos();
+            if (response.ok) {
+                setPrestamos(prevPrestamos => prevPrestamos.filter(prestamo => prestamo.id !== prestamoId));
+            } else {
+                console.error('Error al devolver el préstamo');
+            }
         }
     };
 
