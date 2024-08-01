@@ -53,9 +53,10 @@ model Prestamo {
 
 model Reserva {
   id          Int      @id @default(autoincrement())
-  usuarioId   Int
   libroId     Int
+  usuarioId   Int
   fecha       DateTime @default(now())
-  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
+  estado      String   @default("pendiente")
   libro       Libro    @relation(fields: [libroId], references: [id])
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
 }

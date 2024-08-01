@@ -20,6 +20,11 @@ export default function NavBar() {
                     </Link>
                 </li>
                 <li>
+                    <Link href="/reservas" className="text-white">
+                        Reservas
+                    </Link>
+                </li>
+                <li>
                     <Link href="/informes" className="text-white">
                         Informes
                     </Link>

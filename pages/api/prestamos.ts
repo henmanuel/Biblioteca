@@ -1,6 +1,7 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import { addDays, differenceInDays } from 'date-fns';
+import { NextApiRequest, NextApiResponse } from 'next';
+import {notificarDisponibilidad} from "@/pages/lib/notificaciones";
 
 const prisma = new PrismaClient();
 
@@ -82,11 +83,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             await prisma.libro.update({
                 where: { id: prestamo.libroId },
-                data: { ejemplares: prestamo.libro.ejemplares + 1 },
+                data: { ejemplares: { increment: 1 } },
             });
+
+            await notificarDisponibilidad(prestamo.libroId);
 
             res.status(200).json(prestamo);
         } catch (error) {
+            console.error('Error al registrar la devolución:', error);
             res.status(500).json({ error: 'Error al registrar la devolución' });
         }
     } else {
