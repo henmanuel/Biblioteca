@@ -34,6 +34,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { libroId, usuarioId } = req.body;
 
         try {
+            const libro = await prisma.libro.findUnique({ where: { id: libroId } });
+
+            if (!libro || libro.ejemplares === 0) {
+                return res.status(400).json({ error: 'No hay ejemplares disponibles para este libro.' });
+            }
+
+            await prisma.libro.update({
+                where: { id: libroId },
+                data: { ejemplares: libro.ejemplares - 1 },
+            });
+
             const nuevoPrestamo = await prisma.prestamo.create({
                 data: {
                     libroId,
@@ -65,6 +76,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     usuario: true,
                 },
             });
+
+            await prisma.libro.update({
+                where: { id: prestamo.libroId },
+                data: { ejemplares: prestamo.libro.ejemplares + 1 },
+            });
+
             res.status(200).json(prestamo);
         } catch (error) {
             res.status(500).json({ error: 'Error al registrar la devolución' });

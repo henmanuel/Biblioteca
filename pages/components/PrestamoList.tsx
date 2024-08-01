@@ -9,6 +9,7 @@ export default function PrestamoList() {
     const [selectedUsuario, setSelectedUsuario] = useState(null);
     const [libros, setLibros] = useState([]);
     const [usuarios, setUsuarios] = useState([]);
+    const [mensajeError, setMensajeError] = useState('');
 
     useEffect(() => {
         fetch('/api/prestamos')
@@ -27,6 +28,19 @@ export default function PrestamoList() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (selectedLibro && selectedUsuario) {
+            const libroDisponible = libros.find(libro => libro.id === selectedLibro.value);
+            const prestamoExistente = prestamos.find(prestamo => prestamo.libroId === selectedLibro.value && prestamo.usuarioId === selectedUsuario.value);
+
+            if (libroDisponible.ejemplares === 0) {
+                setMensajeError('No hay ejemplares disponibles para prestar.');
+                return;
+            }
+
+            if (prestamoExistente) {
+                setMensajeError('Este usuario ya tiene prestado este libro.');
+                return;
+            }
+
             await fetch('/api/prestamos', {
                 method: 'POST',
                 headers: {
@@ -44,20 +58,42 @@ export default function PrestamoList() {
 
             setSelectedLibro(null);
             setSelectedUsuario(null);
+            setMensajeError('');
+        }
+    };
+
+    const handleDevolucion = async (prestamoId) => {
+        const confirmDevolucion = confirm("¿Estás seguro de que deseas devolver este libro?");
+        if (confirmDevolucion) {
+            await fetch(`/api/prestamos`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: prestamoId, fechaDevolucion: new Date() }),
+            });
+
+            fetch('/api/prestamos')
+                .then((res) => res.json())
+                .then((data) => setPrestamos(data));
         }
     };
 
     const customStyles = {
         control: (provided) => ({
             ...provided,
-            backgroundColor: '#1e293b', // Cambiar el color de fondo
-            borderColor: '#475569', // Cambiar el color del borde
-            color: '#ffffff', // Cambiar el color del texto
+            backgroundColor: '#1e293b',
+            borderColor: '#475569',
+            color: '#ffffff',
+        }),
+        singleValue: (provided) => ({
+            ...provided,
+            color: '#ffffff',
         }),
         option: (provided, state) => ({
             ...provided,
-            backgroundColor: state.isSelected ? '#1e40af' : '#1e293b', // Cambiar el color de la opción seleccionada
-            color: '#ffffff', // Cambiar el color del texto
+            backgroundColor: state.isSelected ? '#1e40af' : '#1e293b',
+            color: '#ffffff',
         }),
     };
 
@@ -73,16 +109,20 @@ export default function PrestamoList() {
                         Días restantes: {prestamo.diasRestantes} días
                         <br />
                         Multa: ${prestamo.multa}
+                        <button onClick={() => handleDevolucion(prestamo.id)} className="ml-2 text-green-300 hover:text-green-500">
+                            Devolver
+                        </button>
                     </li>
                 ))}
             </ul>
 
             <h2 className="text-xl font-semibold mb-4">Registrar Nuevo Préstamo</h2>
+            {mensajeError && <div className="mb-4 text-red-500">{mensajeError}</div>}
             <form onSubmit={handleSubmit} className="space-y-4">
                 <Select
                     value={selectedLibro}
                     onChange={setSelectedLibro}
-                    options={libros.map(libro => ({ value: libro.id, label: libro.titulo }))}
+                    options={libros.map(libro => ({ value: libro.id, label: `${libro.titulo} (${libro.ejemplares} ejemplares disponibles)` }))}
                     placeholder="Seleccionar Libro"
                     styles={customStyles}
                     isSearchable
