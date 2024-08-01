@@ -48,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 },
             });
             res.status(201).json(nuevoLibro);
-        }catch (error) {
+        } catch (error) {
             console.error('Error al crear el libro:', error);
             res.status(500).json({ error: 'Error al crear el libro', details: error.message });
         }
