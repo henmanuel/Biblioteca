@@ -102,11 +102,12 @@ export default function UsuarioList() {
                 />
                 <select
                     value={form.rol}
-                    onChange={(e) => setForm({ ...form, rol: e.target.value })}
+                    onChange={(e) => setForm({...form, rol: e.target.value})}
                     className="block w-full p-2 bg-gray-800 text-white border border-gray-600 rounded focus:outline-none focus:border-blue-500"
                 >
-                    <option value="usuario">Usuario</option>
-                    <option value="admin">Administrador</option>
+                    <option value="usuario">Estudiante</option>
+                    <option value="admin">Profesores</option>
+                    <option value="admin">Biblioteca</option>
                 </select>
                 <div className="flex space-x-4">
                     <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
