@@ -12,18 +12,28 @@ export default function PrestamoList() {
     const [mensajeError, setMensajeError] = useState('');
 
     useEffect(() => {
-        fetch('/api/prestamos')
-            .then((res) => res.json())
-            .then((data) => setPrestamos(data));
-
-        fetch('/api/libros')
-            .then((res) => res.json())
-            .then((data) => setLibros(data));
-
-        fetch('/api/usuarios')
-            .then((res) => res.json())
-            .then((data) => setUsuarios(data));
+        fetchPrestamos().then();
+        fetchLibros().then();
+        fetchUsuarios().then();
     }, []);
+
+    const fetchPrestamos = async () => {
+        const res = await fetch('/api/prestamos');
+        const data = await res.json();
+        setPrestamos(data);
+    };
+
+    const fetchLibros = async () => {
+        const res = await fetch('/api/libros');
+        const data = await res.json();
+        setLibros(data);
+    };
+
+    const fetchUsuarios = async () => {
+        const res = await fetch('/api/usuarios');
+        const data = await res.json();
+        setUsuarios(data);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -52,10 +62,7 @@ export default function PrestamoList() {
                 }),
             });
 
-            fetch('/api/prestamos')
-                .then((res) => res.json())
-                .then((data) => setPrestamos(data));
-
+            await fetchPrestamos();
             setSelectedLibro(null);
             setSelectedUsuario(null);
             setMensajeError('');
@@ -73,9 +80,7 @@ export default function PrestamoList() {
                 body: JSON.stringify({ id: prestamoId, fechaDevolucion: new Date() }),
             });
 
-            fetch('/api/prestamos')
-                .then((res) => res.json())
-                .then((data) => setPrestamos(data));
+            await fetchPrestamos();
         }
     };
 
