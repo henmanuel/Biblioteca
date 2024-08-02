@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Sistema de Gestión de Biblioteca
+
+Este proyecto es un Sistema de Gestión de Biblioteca desarrollado con Next.js, TypeScript, Prisma y NextAuth.js. El sistema permite gestionar el inventario de libros, los usuarios, los préstamos y las reservas en una biblioteca.
 
 ## Getting Started
 
-First, run the development server:
+### 1. Ejecutar una Instancia de PostgreSQL con Docker
+
+Primero, necesitas ejecutar una instancia de PostgreSQL utilizando Docker con las siguientes credenciales:
+
+- **Usuario:** `henma`
+- **Contraseña:** `01234567890`
+- **Base de datos:** `biblioteca`
+
+Puedes hacer esto ejecutando el siguiente comando en tu terminal:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker run --name postgres -e POSTGRES_USER=henma -e POSTGRES_PASSWORD=01234567890 -e POSTGRES_DB=biblioteca -p 5432:5432 -d postgres:13
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Este comando crea y ejecuta un contenedor de PostgreSQL en el puerto `5432`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2. Instalar Dependencias
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Asegúrate de tener Node.js y Yarn instalados en tu sistema. Luego, instala las dependencias del proyecto:
 
-## Learn More
+```bash
+yarn install
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 3. Ejecutar Migraciones de Prisma
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Ejecuta las migraciones para configurar la base de datos:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```bash
+npx prisma migrate dev --name init
+```
 
-## Deploy on Vercel
+### 4. Levantar el Proyecto
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Finalmente, puedes levantar el proyecto en modo de desarrollo ejecutando:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+```bash
+yarn dev
+```
+
+La aplicación estará disponible en [http://localhost:3000](http://localhost:3000).
+
+### 5. Acceder a la Aplicación
+
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver el resultado.
+
+Puedes empezar a editar la página modificando `app/page.tsx`. La página se actualiza automáticamente a medida que editas el archivo.
+
+Este proyecto utiliza [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) para optimizar y cargar automáticamente Inter, una fuente personalizada de Google.
+
+## Instrucciones Adicionales
+
+### Leer el Documento PDF
+
+- Asegúrate de leer el documento PDF adjunto que contiene todos los detalles importantes del proyecto.
+- El documento cubre aspectos como la descripción del proyecto, la metodología utilizada, los resultados obtenidos y las conclusiones.
+
+### Ver el Video
+
+- Además, es crucial que veas el video adjunto, que proporciona una explicación visual del proyecto.
+- El video incluye una demostración práctica, un recorrido por la interfaz de usuario y una explicación detallada de las características implementadas.
+
+Ambos recursos te proporcionarán una comprensión completa del proyecto. Si tienes alguna pregunta, no dudes en contactar al autor.
