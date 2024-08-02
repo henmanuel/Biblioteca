@@ -1,4 +1,7 @@
+"use client";
+
 import Link from 'next/link';
+import { signOut } from 'next-auth/react';
 
 export default function NavBar() {
     return (
@@ -28,6 +31,14 @@ export default function NavBar() {
                     <Link href="/informes" className="text-white">
                         Informes
                     </Link>
+                </li>
+                <li>
+                    <button
+                        onClick={() => signOut({ callbackUrl: '/' })}
+                        className="text-white bg-red-600 hover:bg-red-700 px-3 py-2 rounded"
+                    >
+                        Cerrar Sesión
+                    </button>
                 </li>
             </ul>
         </nav>
