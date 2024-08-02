@@ -107,7 +107,7 @@ export default function PrestamoList() {
     };
 
     return (
-        <div className="p-4 text-black">
+        <div className="p-4 text-white">
             <h1 className="text-2xl font-bold mb-4">Gestión de Préstamos</h1>
             <h2 className="text-xl font-semibold mb-4">Lista de Préstamos</h2>
             <ul className="mb-4">

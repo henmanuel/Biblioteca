@@ -70,7 +70,7 @@ export default function UsuarioList() {
     };
 
     return (
-        <div className="p-4 text-black">
+        <div className="p-4 text-white">
             <h1 className="text-2xl font-bold mb-4">Gestión de Usuarios</h1>
             <ul className="mb-4">
                 {usuarios.map((usuario) => (

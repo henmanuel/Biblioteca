@@ -62,7 +62,7 @@ export default function LibroList() {
     };
 
     return (
-        <div className="p-4 text-black">
+        <div className="p-4 text-white">
             <h1 className="text-3xl font-bold mb-6">Sistema de Gestión de Biblioteca</h1>
             <h2 className="text-2xl font-semibold mb-4">Lista de Libros</h2>
             <ul className="mb-8">
